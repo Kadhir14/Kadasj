@@ -1602,7 +1602,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         <span style="font-size:11px;color:var(--text-tertiary)">CHF</span>
         <select id="netWorthCurrency" style="background:var(--bg-card);color:var(--text-primary);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;font-family:inherit;cursor:pointer">
           <option value="CHF">CHF</option>
-          <option value="USD">USD</option>
+          <option value="AUD">AUD</option>
           <option value="EUR">EUR</option>
           <option value="GBP">GBP</option>
         </select>
@@ -1749,7 +1749,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
       <input type="number" placeholder="Amount" id="subAmount" step="0.01" style="flex:1;max-width:100px" />
       <select id="subCurrency" style="padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:12px;font-family:inherit;background:var(--bg-card);color:var(--text-primary);max-width:90px">
         <option value="CHF">CHF</option>
-        <option value="USD">USD</option>
+        <option value="AUD">AUD</option>
         <option value="EUR">EUR</option>
         <option value="GBP">GBP</option>
       </select>
@@ -1786,7 +1786,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
       <input type="number" id="ordCost"   placeholder="Cost" step="0.01" class="ord-input ord-input-cost">
       <select id="ordCurrency" class="ord-input ord-input-ccy">
         <option value="CHF">CHF</option>
-        <option value="USD">USD</option>
+        <option value="AUD">AUD</option>
         <option value="EUR">EUR</option>
         <option value="GBP">GBP</option>
       </select>
@@ -1843,7 +1843,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
       <input type="number" id="wishAmount" placeholder="Cost" step="0.01" class="wish-input wish-input-amt">
       <select id="wishCurrency" class="wish-input wish-input-ccy">
         <option value="CHF">CHF</option>
-        <option value="USD">USD</option>
+        <option value="AUD">AUD</option>
         <option value="EUR">EUR</option>
         <option value="GBP">GBP</option>
       </select>
@@ -1949,7 +1949,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   const netWorthTotal = document.getElementById('netWorthTotal');
   const netWorthBreakdown = document.getElementById('netWorthBreakdown');
 
-  let exchangeRates = { CHF: 1, USD: 1, EUR: 1, GBP: 1 };
+  let exchangeRates = { CHF: 1, AUD: 1, EUR: 1, GBP: 1 };
   async function loadExchangeRates() {
     try {
       const res = await fetch('https://open.er-api.com/v6/latest/CHF');
@@ -1957,7 +1957,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
       if (data && data.rates) {
         exchangeRates = {
           CHF: 1,
-          USD: data.rates.USD || 1,
+          AUD: data.rates.AUD || 1,
           EUR: data.rates.EUR || 1,
           GBP: data.rates.GBP || 1
         };
@@ -2391,8 +2391,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
       const a = parseFloat(amtInput.value);
       if (!n || isNaN(a)) return;
       // Interpret the input in the CURRENTLY SELECTED display currency, then
-      // convert to CHF for storage. So if USD is selected and user types 40000,
-      // we store 40000 / USD-per-CHF rate — 31,400 CHF; displays as $40,000.
+      // convert to CHF for storage. So if AUD is selected and user types 40000,
+      // we store 40000 / AUD-per-CHF rate — displays as $40,000.
       const symbol = currencyEl ? currencyEl.value : 'CHF';
       const rate = exchangeRates[symbol] || 1;
       const amountCHF = a / rate;
@@ -2653,7 +2653,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     const periodOpts = ['monthly','yearly','weekly'].map(p =>
       '<option value="' + p + '"' + (p === it.period ? ' selected' : '') + '>' + p.charAt(0).toUpperCase() + p.slice(1) + '</option>'
     ).join('');
-    const ccyOpts = ['CHF','USD','EUR','GBP'].map(c =>
+    const ccyOpts = ['CHF','AUD','EUR','GBP'].map(c =>
       '<option value="' + c + '"' + (c === enteredCcy ? ' selected' : '') + '>' + c + '</option>'
     ).join('');
     // Build From-account options from the live NW accounts
