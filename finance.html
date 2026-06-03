@@ -1726,6 +1726,39 @@ input[type="date"]::-webkit-calendar-picker-indicator {
       </div>
     </div>
   </div>
+
+  <!-- ===== INCOME / PAY ===== -->
+  <div class="card" style="margin-top:14px;background:linear-gradient(135deg,rgba(110,231,183,0.07),rgba(125,211,252,0.05));border:1px solid rgba(110,231,183,0.22)">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px;margin-bottom:12px">
+      <div>
+        <div style="font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.04em;font-weight:500">Income</div>
+        <div id="incomeTotal" style="font-size:28px;font-weight:700;color:var(--text-primary);line-height:1.1;margin-top:2px">— <span style="font-size:13px;color:var(--text-tertiary);font-weight:500">/ mo</span></div>
+      </div>
+      <div id="incomeNextPay" style="font-size:12px;color:#6ee7b7;font-weight:600"></div>
+    </div>
+    <div id="incomeList"></div>
+    <div class="empty-state" id="incomeEmpty">No income sources added yet</div>
+    <div class="quick-add" style="flex-wrap:wrap;gap:6px;margin-top:10px">
+      <input type="text" placeholder="e.g. Salary" id="incomeName" style="flex:1.5;min-width:120px" />
+      <input type="number" placeholder="Amount" id="incomeAmount" step="0.01" style="flex:1;max-width:110px" />
+      <select id="incomeCurrency" style="padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:12px;font-family:inherit;background:var(--bg-card);color:var(--text-primary)">
+        <option value="AUD">AUD</option>
+        <option value="CHF">CHF</option>
+        <option value="EUR">EUR</option>
+        <option value="GBP">GBP</option>
+      </select>
+      <select id="incomeFreq" style="padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:12px;font-family:inherit;background:var(--bg-card);color:var(--text-primary)">
+        <option value="fortnightly">Fortnightly</option>
+        <option value="monthly">Monthly</option>
+        <option value="weekly">Weekly</option>
+      </select>
+      <label class="date-field" title="Next pay date" style="min-width:150px"><span class="date-emoji" aria-hidden="true">📅</span><input type="date" id="incomeNextDate" /></label>
+      <select id="incomeToCat" title="Credit to which net worth account" style="padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:12px;font-family:inherit;background:var(--bg-card);color:var(--text-primary);min-width:130px">
+        <option value="">No accounts yet</option>
+      </select>
+      <button class="quick-add-btn" id="incomeAddBtn">+ Add</button>
+    </div>
+  </div>
 </div>
 
 <!-- ===== ACTIVE SUBSCRIPTIONS ===== -->
@@ -1865,6 +1898,40 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   </div>
 </div>
 
+<!-- ===== RECURRING PAYMENTS ===== -->
+<div class="section" data-section="recurring" hidden>
+  <div class="section-title">
+    <span class="section-title-text">RECURRING PAYMENTS</span>
+  </div>
+  <div class="card" style="background:linear-gradient(135deg,rgba(251,191,36,0.07),rgba(251,146,60,0.05));border:1px solid rgba(251,191,36,0.20)">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px;margin-bottom:12px">
+      <div>
+        <div style="font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.04em;font-weight:500">Monthly estimate</div>
+        <div id="recurringTotal" style="font-size:28px;font-weight:700;color:var(--text-primary);line-height:1.1;margin-top:2px">— <span style="font-size:13px;color:var(--text-tertiary);font-weight:500">/ mo</span></div>
+      </div>
+      <div style="font-size:11px;color:var(--text-tertiary)">Variable recurring expenses</div>
+    </div>
+    <div id="recurringList"></div>
+    <div class="empty-state" id="recurringEmpty">No recurring payments yet — add fuel, groceries, etc.</div>
+    <div class="quick-add" style="flex-wrap:wrap;gap:6px;margin-top:10px">
+      <input type="text" placeholder="e.g. Fuel, Groceries" id="recurName" style="flex:1.5;min-width:140px" />
+      <input type="number" placeholder="Typical amount" id="recurAmount" step="0.01" style="flex:1;max-width:120px" />
+      <select id="recurCurrency" style="padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:12px;font-family:inherit;background:var(--bg-card);color:var(--text-primary)">
+        <option value="AUD">AUD</option>
+        <option value="CHF">CHF</option>
+        <option value="EUR">EUR</option>
+        <option value="GBP">GBP</option>
+      </select>
+      <select id="recurFreq" style="padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:12px;font-family:inherit;background:var(--bg-card);color:var(--text-primary)">
+        <option value="fortnightly">Fortnightly</option>
+        <option value="weekly">Weekly</option>
+        <option value="monthly">Monthly</option>
+      </select>
+      <button class="quick-add-btn" id="recurAddBtn">+ Add</button>
+    </div>
+  </div>
+</div>
+
 </div>
 
 <!-- ===== BOTTOM TAB BAR ===== -->
@@ -1884,6 +1951,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   <button class="bot-tab" data-tab="wish">
     <span class="bot-tab-icon">🎯</span>
     <span class="bot-tab-label">Wishlist</span>
+  </button>
+  <button class="bot-tab" data-tab="recurring">
+    <span class="bot-tab-icon">💳</span>
+    <span class="bot-tab-label">Recurring</span>
   </button>
 </nav>
 
@@ -1934,7 +2005,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   }
   tabs.forEach(b => b.addEventListener('click', () => setActiveTab(b.dataset.tab)));
   const savedTab = storeGet(TAB_KEY);
-  setActiveTab(savedTab && ['net','subs','incoming','wish'].includes(savedTab) ? savedTab : 'net');
+  setActiveTab(savedTab && ['net','subs','incoming','wish','recurring'].includes(savedTab) ? savedTab : 'net');
 
   // ============================================================
   // NET WORTH (copied from the main dashboard, verbatim logic)
@@ -1963,7 +2034,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
           GBP: data.rates.GBP || 1
         };
         renderAllNetWorth();
-        if (typeof renderSubs === 'function') renderSubs();
+        if (typeof renderSubs      === 'function') renderSubs();
+        if (typeof renderIncome    === 'function') renderIncome();
+        if (typeof renderRecurring === 'function') renderRecurring();
       }
     } catch (e) {}
   }
@@ -3373,6 +3446,252 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   // fragile wrapping of renderSubs (which broke the add buttons before).
   // The actual swap is gated by tickerTimer's own 5s interval inside
   // renderTicker; this loop just keeps the data fresh whenever subs change.
+  // ============================================================
+  // INCOME — auto-credits linked NW accounts on each pay date.
+  // ============================================================
+
+  function processAutoCredit() {
+    const items = storeGet('nw_income') || [];
+    if (!items.length) return false;
+    const now = new Date();
+    const todayMs = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    let changed = false;
+    items.forEach(it => {
+      if (!it.nextPay || !it.toCat || !it.toAccount) return;
+      const isoSafe = /^\d{4}-\d{2}-\d{2}$/.test(it.nextPay) ? it.nextPay + 'T00:00' : it.nextPay;
+      let payDate = new Date(isoSafe);
+      if (isNaN(payDate)) return;
+      let safety = 0;
+      while (payDate.getTime() <= todayMs && safety++ < 200) {
+        const payMs = new Date(payDate.getFullYear(), payDate.getMonth(), payDate.getDate()).getTime();
+        if (!(it.lastCreditedAt && it.lastCreditedAt >= payMs)) {
+          const nwItems = storeGet('nw:' + it.toCat) || [];
+          const idx = nwItems.findIndex(x => String(x.name) === String(it.toAccount));
+          if (idx >= 0) {
+            nwItems[idx].amount = (Number(nwItems[idx].amount) || 0) + Number(it.amount);
+            storeSet('nw:' + it.toCat, nwItems);
+            logActivity(it.toCat, nwItems[idx].name, Number(it.amount), 'edit');
+          }
+          it.lastCreditedAt = payMs;
+          changed = true;
+        }
+        if      (it.frequency === 'weekly')   payDate.setDate(payDate.getDate() + 7);
+        else if (it.frequency === 'monthly')  payDate.setMonth(payDate.getMonth() + 1);
+        else                                  payDate.setDate(payDate.getDate() + 14);
+      }
+      const newNext = payDate.getFullYear() + '-' + String(payDate.getMonth() + 1).padStart(2, '0') + '-' + String(payDate.getDate()).padStart(2, '0');
+      if (newNext !== it.nextPay) { it.nextPay = newNext; changed = true; }
+    });
+    if (changed) storeSet('nw_income', items);
+    return changed;
+  }
+
+  function incomeMonthlyEquiv(it) {
+    const a = Number(it.amount) || 0;
+    if (it.frequency === 'weekly')  return a * 4.345;
+    if (it.frequency === 'monthly') return a;
+    return a * 2.172;
+  }
+
+  function populateIncomeToCat() {
+    const sel = document.getElementById('incomeToCat');
+    if (!sel) return;
+    const opts = [];
+    NW_CATS.forEach(cat => {
+      (storeGet('nw:' + cat.key) || []).forEach(item => {
+        opts.push('<option value="' + cat.key + '|' + escapeHtml(item.name) + '">' + escapeHtml(item.name) + ' (' + cat.key + ')</option>');
+      });
+    });
+    sel.innerHTML = opts.length ? opts.join('') : '<option value="">No accounts yet</option>';
+  }
+
+  function renderIncome() {
+    const listEl    = document.getElementById('incomeList');
+    const emptyEl   = document.getElementById('incomeEmpty');
+    const totalEl   = document.getElementById('incomeTotal');
+    const nextPayEl = document.getElementById('incomeNextPay');
+    if (!listEl) return;
+    if (processAutoCredit()) renderAllNetWorth();
+    populateIncomeToCat();
+    const items = storeGet('nw_income') || [];
+    if (!items.length) {
+      listEl.innerHTML = '';
+      if (emptyEl)   emptyEl.style.display   = 'flex';
+      if (totalEl)   totalEl.innerHTML = '— <span style="font-size:13px;color:var(--text-tertiary);font-weight:500">/ mo</span>';
+      if (nextPayEl) nextPayEl.textContent = '';
+      return;
+    }
+    if (emptyEl) emptyEl.style.display = 'none';
+    let monthly = 0, soonest = null;
+    items.forEach(it => {
+      monthly += incomeMonthlyEquiv(it);
+      if (it.nextPay) {
+        const d = new Date(it.nextPay + 'T00:00');
+        if (!soonest || d < soonest) soonest = d;
+      }
+    });
+    if (totalEl) totalEl.innerHTML = fmtMoney(monthly) + ' <span style="font-size:13px;color:var(--text-tertiary);font-weight:500">/ mo</span>';
+    if (nextPayEl && soonest) {
+      const diff = Math.round((soonest - new Date(new Date().toDateString())) / 86400000);
+      nextPayEl.textContent = diff === 0 ? '🎉 Pay day today!' : diff === 1 ? 'Next pay: tomorrow' : 'Next pay: in ' + diff + ' days';
+    }
+    listEl.innerHTML = items.map((it, idx) => {
+      const freqLabel = { fortnightly: 'Fortnightly', weekly: 'Weekly', monthly: 'Monthly' }[it.frequency] || it.frequency;
+      const nextD = it.nextPay ? new Date(it.nextPay + 'T00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
+      return '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
+        '<span style="font-size:18px">💵</span>' +
+        '<div style="flex:1;min-width:0">' +
+          '<div style="font-weight:600;font-size:13px;color:var(--text-primary)">' + escapeHtml(it.name) + '</div>' +
+          '<div style="font-size:11px;color:var(--text-tertiary);margin-top:2px">' + freqLabel + ' · next ' + nextD + ' → ' + escapeHtml(it.toAccount || '?') + '</div>' +
+        '</div>' +
+        '<div style="font-weight:700;font-size:14px;color:#6ee7b7">' + fmtMoney(it.amount) + '</div>' +
+        '<button onclick="window.__deleteIncome(' + idx + ')" style="background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:16px;padding:4px 6px;border-radius:6px" title="Remove">✕</button>' +
+      '</div>';
+    }).join('');
+  }
+
+  document.getElementById('incomeAddBtn') && document.getElementById('incomeAddBtn').addEventListener('click', function () {
+    const name     = (document.getElementById('incomeName').value    || '').trim();
+    const amtRaw   = parseFloat(document.getElementById('incomeAmount').value);
+    const ccy      = document.getElementById('incomeCurrency').value;
+    const freq     = document.getElementById('incomeFreq').value;
+    const nextPay  = document.getElementById('incomeNextDate').value;
+    const toCatVal = document.getElementById('incomeToCat').value;
+    if (!name || isNaN(amtRaw) || !nextPay || !toCatVal) return;
+    const sep = toCatVal.indexOf('|');
+    const toCat = toCatVal.slice(0, sep), toAccount = toCatVal.slice(sep + 1);
+    const rate = exchangeRates[ccy] || 1;
+    const items = storeGet('nw_income') || [];
+    items.push({ id: 'i' + Date.now(), name, amount: amtRaw / rate, entered_amount: amtRaw, entered_currency: ccy, frequency: freq, nextPay, toCat, toAccount, lastCreditedAt: null });
+    storeSet('nw_income', items);
+    document.getElementById('incomeName').value     = '';
+    document.getElementById('incomeAmount').value   = '';
+    document.getElementById('incomeNextDate').value = '';
+    renderIncome();
+    renderAllNetWorth();
+  });
+
+  window.__deleteIncome = function (idx) {
+    const items = storeGet('nw_income') || [];
+    items.splice(idx, 1);
+    storeSet('nw_income', items);
+    renderIncome();
+    renderAllNetWorth();
+  };
+
+  renderIncome();
+
+  // ============================================================
+  // RECURRING PAYMENTS — variable expenses: fuel, groceries, etc.
+  // ============================================================
+
+  function recurMonthlyEquiv(it) {
+    const a = Number(it.amount) || 0;
+    if (it.frequency === 'weekly')      return a * 4.345;
+    if (it.frequency === 'fortnightly') return a * 2.172;
+    return a;
+  }
+
+  function renderRecurring() {
+    const listEl  = document.getElementById('recurringList');
+    const emptyEl = document.getElementById('recurringEmpty');
+    const totalEl = document.getElementById('recurringTotal');
+    if (!listEl) return;
+    const items = storeGet('recurring') || [];
+    if (!items.length) {
+      listEl.innerHTML = '';
+      if (emptyEl) emptyEl.style.display = 'flex';
+      if (totalEl) totalEl.innerHTML = '— <span style="font-size:13px;color:var(--text-tertiary);font-weight:500">/ mo</span>';
+      return;
+    }
+    if (emptyEl) emptyEl.style.display = 'none';
+    let monthly = 0;
+    items.forEach(it => monthly += recurMonthlyEquiv(it));
+    if (totalEl) totalEl.innerHTML = fmtMoney(monthly) + ' <span style="font-size:13px;color:var(--text-tertiary);font-weight:500">/ mo est.</span>';
+    listEl.innerHTML = items.map((it, idx) => {
+      const freqLabel  = { fortnightly: 'Fortnightly', weekly: 'Weekly', monthly: 'Monthly' }[it.frequency] || it.frequency;
+      const enteredAmt = it.entered_amount != null ? it.entered_amount : it.amount;
+      const enteredCcy = it.entered_currency || 'AUD';
+      const logs = (it.logs || []).slice(-3).reverse();
+      const logRows = logs.map(l =>
+        '<div style="font-size:11px;color:var(--text-tertiary);padding:2px 0">📌 ' + l.date + ': ' + (l.entered_currency || enteredCcy) + ' ' + Number(l.entered_amount || l.amount).toFixed(2) + (l.note ? ' · ' + escapeHtml(l.note) : '') + '</div>'
+      ).join('');
+      return '<div style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
+        '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">' +
+          '<div style="flex:1;min-width:0">' +
+            '<div style="font-weight:600;font-size:13px;color:var(--text-primary)">' + escapeHtml(it.name) + '</div>' +
+            '<div style="font-size:11px;color:var(--text-tertiary);margin-top:2px">' + freqLabel + ' · ~' + enteredCcy + ' ' + Number(enteredAmt).toFixed(2) + ' typical</div>' +
+          '</div>' +
+          '<button onclick="window.__toggleRecurLog(' + idx + ')" style="padding:6px 12px;background:rgba(125,211,252,0.12);border:1px solid rgba(125,211,252,0.22);border-radius:8px;color:#7DD3FC;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Log payment</button>' +
+          '<button onclick="window.__deleteRecurring(' + idx + ')" style="background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:16px;padding:4px 6px;border-radius:6px" title="Remove">✕</button>' +
+        '</div>' +
+        '<div id="recurLog_' + idx + '" style="margin-top:8px">' +
+          '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">' +
+            '<input type="number" step="0.01" placeholder="Actual amount" id="recurLogAmt_' + idx + '" style="width:120px;padding:6px 10px;border:0.5px solid rgba(255,255,255,0.12);border-radius:8px;font-size:12px;background:var(--bg-card);color:var(--text-primary);font-family:inherit" />' +
+            '<input type="text" placeholder="Note (optional)" id="recurLogNote_' + idx + '" style="flex:1;min-width:80px;padding:6px 10px;border:0.5px solid rgba(255,255,255,0.12);border-radius:8px;font-size:12px;background:var(--bg-card);color:var(--text-primary);font-family:inherit" />' +
+            '<button onclick="window.__saveRecurLog(' + idx + ')" style="padding:6px 14px;background:rgba(110,231,183,0.14);border:1px solid rgba(110,231,183,0.26);border-radius:8px;color:#6ee7b7;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Save</button>' +
+            '<button onclick="window.__cancelRecurLog(' + idx + ')" style="background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:12px;padding:4px 8px">Cancel</button>' +
+          '</div>' +
+        '</div>' +
+        (logRows ? '<div style="margin-top:6px">' + logRows + '</div>' : '') +
+      '</div>';
+    }).join('');
+    // Hide all log panels after re-render
+    items.forEach((_, idx) => {
+      const el = document.getElementById('recurLog_' + idx);
+      if (el) el.style.display = 'none';
+    });
+  }
+
+  window.__toggleRecurLog = function (idx) {
+    const el = document.getElementById('recurLog_' + idx);
+    if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+  };
+  window.__cancelRecurLog = function (idx) {
+    const el = document.getElementById('recurLog_' + idx);
+    if (el) el.style.display = 'none';
+  };
+  window.__saveRecurLog = function (idx) {
+    const items = storeGet('recurring') || [];
+    if (!items[idx]) return;
+    const amtEl  = document.getElementById('recurLogAmt_'  + idx);
+    const noteEl = document.getElementById('recurLogNote_' + idx);
+    const amt  = parseFloat(amtEl  ? amtEl.value  : '0');
+    if (isNaN(amt) || amt <= 0) return;
+    const note = noteEl ? noteEl.value.trim() : '';
+    const ccy  = items[idx].entered_currency || 'AUD';
+    const rate = exchangeRates[ccy] || 1;
+    items[idx].logs = items[idx].logs || [];
+    const d = new Date();
+    const dateStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    items[idx].logs.push({ date: dateStr, amount: amt / rate, entered_amount: amt, entered_currency: ccy, note });
+    storeSet('recurring', items);
+    renderRecurring();
+  };
+  window.__deleteRecurring = function (idx) {
+    const items = storeGet('recurring') || [];
+    items.splice(idx, 1);
+    storeSet('recurring', items);
+    renderRecurring();
+  };
+
+  document.getElementById('recurAddBtn') && document.getElementById('recurAddBtn').addEventListener('click', function () {
+    const name   = (document.getElementById('recurName').value   || '').trim();
+    const amtRaw = parseFloat(document.getElementById('recurAmount').value);
+    const ccy    = document.getElementById('recurCurrency').value;
+    const freq   = document.getElementById('recurFreq').value;
+    if (!name || isNaN(amtRaw)) return;
+    const rate = exchangeRates[ccy] || 1;
+    const items = storeGet('recurring') || [];
+    items.push({ id: 'r' + Date.now(), name, amount: amtRaw / rate, entered_amount: amtRaw, entered_currency: ccy, frequency: freq, logs: [] });
+    storeSet('recurring', items);
+    document.getElementById('recurName').value   = '';
+    document.getElementById('recurAmount').value = '';
+    renderRecurring();
+  });
+
+  renderRecurring();
+
   function safeRenderTicker() {
     try { renderTicker(); } catch (e) { console.error('ticker render failed', e); }
   }
@@ -3386,7 +3705,7 @@ document.addEventListener('DOMContentLoaded', function () {
   if (typeof initCloudSync !== 'function') return;
   initCloudSync({
     appKey: 'finance',
-    syncedKeys: ['subs', 'wishlist', 'incoming_orders', 'nw_currency', 'nw:activity', 'nw:history'],
+    syncedKeys: ['subs', 'wishlist', 'incoming_orders', 'nw_currency', 'nw:activity', 'nw:history', 'nw_income', 'recurring'],
     syncedPrefixes: ['nw:'],
     onApplied: function () { window.dispatchEvent(new Event('storage')); }
   });
