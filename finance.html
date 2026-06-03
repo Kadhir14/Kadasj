@@ -1762,9 +1762,31 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 </div>
 
 <!-- ===== ACTIVE SUBSCRIPTIONS ===== -->
-<div class="section" data-section="subs">
+<div class="section" data-section="spending">
   <div class="section-title">
-    <span class="section-title-text">ACTIVE SUBSCRIPTIONS</span>
+    <span class="section-title-text">SPENDING</span>
+  </div>
+
+  <!-- Spending overview: combined burn + donut chart -->
+  <div class="card" style="background:linear-gradient(135deg,rgba(167,139,250,0.06),rgba(251,191,36,0.04));border:1px solid rgba(167,139,250,0.18)">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
+      <div>
+        <div style="font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.04em;font-weight:500">Total monthly spend</div>
+        <div id="spendingTotal" style="font-size:34px;font-weight:700;color:var(--text-primary);line-height:1.05;margin-top:2px">—</div>
+        <div id="spendingBreakdown" style="font-size:11px;color:var(--text-tertiary);margin-top:4px"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+        <svg id="spendingDonutSvg" viewBox="0 0 140 140" width="120" height="120" style="overflow:visible" aria-hidden="true">
+          <circle cx="70" cy="70" r="58" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="16"/>
+        </svg>
+        <div id="spendingLegend" style="display:flex;flex-wrap:wrap;gap:6px 12px;justify-content:center"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Subscriptions -->
+  <div class="section-title" style="margin-top:28px">
+    <span class="section-title-text">SUBSCRIPTIONS</span>
   </div>
   <div class="card" style="background:linear-gradient(135deg, rgba(83,74,183,0.07), rgba(216,90,48,0.05));border:1px solid rgba(83,74,183,0.20)">
     <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-bottom:12px">
@@ -1802,6 +1824,73 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         <span class="sub-auto-label">Auto-deduct</span>
       </label>
       <button class="quick-add-btn" id="subAddBtn" onclick="window.__addSub && window.__addSub()">+ Add</button>
+    </div>
+  </div>
+
+  <!-- Recurring Payments -->
+  <div class="section-title" style="margin-top:28px">
+    <span class="section-title-text">RECURRING PAYMENTS</span>
+  </div>
+  <div class="card" style="background:linear-gradient(135deg,rgba(251,191,36,0.07),rgba(251,146,60,0.05));border:1px solid rgba(251,191,36,0.20)">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px;margin-bottom:12px">
+      <div>
+        <div style="font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.04em;font-weight:500">Monthly estimate</div>
+        <div id="recurringTotal" style="font-size:28px;font-weight:700;color:var(--text-primary);line-height:1.1;margin-top:2px">— <span style="font-size:13px;color:var(--text-tertiary);font-weight:500">/ mo</span></div>
+      </div>
+      <div style="font-size:11px;color:var(--text-tertiary)">Variable recurring expenses</div>
+    </div>
+    <div id="recurringList"></div>
+    <div class="empty-state" id="recurringEmpty">No recurring payments yet — add fuel, groceries, etc.</div>
+    <div class="quick-add" style="flex-wrap:wrap;gap:6px;margin-top:10px">
+      <input type="text" placeholder="e.g. Fuel, Groceries" id="recurName" style="flex:1.5;min-width:140px" />
+      <input type="number" placeholder="Typical amount" id="recurAmount" step="0.01" style="flex:1;max-width:120px" />
+      <select id="recurCurrency" style="padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:12px;font-family:inherit;background:var(--bg-card);color:var(--text-primary)">
+        <option value="AUD">AUD</option>
+        <option value="CHF">CHF</option>
+        <option value="EUR">EUR</option>
+        <option value="GBP">GBP</option>
+      </select>
+      <select id="recurFreq" style="padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:12px;font-family:inherit;background:var(--bg-card);color:var(--text-primary)">
+        <option value="fortnightly">Fortnightly</option>
+        <option value="weekly">Weekly</option>
+        <option value="monthly">Monthly</option>
+      </select>
+      <button class="quick-add-btn" id="recurAddBtn">+ Add</button>
+    </div>
+  </div>
+
+  <!-- Other Purchases -->
+  <div class="section-title" style="margin-top:28px">
+    <span class="section-title-text">OTHER PURCHASES</span>
+  </div>
+  <div class="card" style="background:linear-gradient(135deg,rgba(255,138,138,0.06),rgba(251,191,36,0.03));border:1px solid rgba(255,138,138,0.18)">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px;margin-bottom:12px">
+      <div>
+        <div style="font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.04em;font-weight:500">This month</div>
+        <div id="otherPurchasesTotal" style="font-size:28px;font-weight:700;color:var(--text-primary);line-height:1.1;margin-top:2px">— <span style="font-size:13px;color:var(--text-tertiary);font-weight:500">total</span></div>
+      </div>
+      <div style="font-size:11px;color:var(--text-tertiary)">One-off purchases</div>
+    </div>
+    <div id="otherPurchasesList"></div>
+    <div class="empty-state" id="otherPurchasesEmpty">No purchases logged yet</div>
+    <div class="quick-add" style="flex-wrap:wrap;gap:6px;margin-top:10px">
+      <input type="text" placeholder="Item / description" id="otherName" style="flex:1.5;min-width:140px" />
+      <input type="number" placeholder="Amount" id="otherAmount" step="0.01" style="flex:1;max-width:110px" />
+      <select id="otherCurrency" style="padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:12px;font-family:inherit;background:var(--bg-card);color:var(--text-primary)">
+        <option value="AUD">AUD</option>
+        <option value="CHF">CHF</option>
+        <option value="EUR">EUR</option>
+        <option value="GBP">GBP</option>
+      </select>
+      <select id="otherPaymentMode" style="padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:12px;font-family:inherit;background:var(--bg-card);color:var(--text-primary)">
+        <option value="cash">💵 Cash</option>
+        <option value="nab">🏦 NAB</option>
+        <option value="ing">🟠 ING</option>
+        <option value="anz">🔵 ANZ</option>
+      </select>
+      <label class="date-field" title="Purchase date" style="min-width:150px"><span class="date-emoji" aria-hidden="true">📅</span><input type="date" id="otherDate" /></label>
+      <input type="text" placeholder="Note (optional)" id="otherNote" style="flex:1.2;min-width:100px;padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:12px;font-family:inherit;background:var(--bg-card);color:var(--text-primary)" />
+      <button class="quick-add-btn" id="otherAddBtn">+ Add</button>
     </div>
   </div>
 </div>
@@ -1899,38 +1988,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 </div>
 
 <!-- ===== RECURRING PAYMENTS ===== -->
-<div class="section" data-section="recurring" hidden>
-  <div class="section-title">
-    <span class="section-title-text">RECURRING PAYMENTS</span>
-  </div>
-  <div class="card" style="background:linear-gradient(135deg,rgba(251,191,36,0.07),rgba(251,146,60,0.05));border:1px solid rgba(251,191,36,0.20)">
-    <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px;margin-bottom:12px">
-      <div>
-        <div style="font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.04em;font-weight:500">Monthly estimate</div>
-        <div id="recurringTotal" style="font-size:28px;font-weight:700;color:var(--text-primary);line-height:1.1;margin-top:2px">— <span style="font-size:13px;color:var(--text-tertiary);font-weight:500">/ mo</span></div>
-      </div>
-      <div style="font-size:11px;color:var(--text-tertiary)">Variable recurring expenses</div>
-    </div>
-    <div id="recurringList"></div>
-    <div class="empty-state" id="recurringEmpty">No recurring payments yet — add fuel, groceries, etc.</div>
-    <div class="quick-add" style="flex-wrap:wrap;gap:6px;margin-top:10px">
-      <input type="text" placeholder="e.g. Fuel, Groceries" id="recurName" style="flex:1.5;min-width:140px" />
-      <input type="number" placeholder="Typical amount" id="recurAmount" step="0.01" style="flex:1;max-width:120px" />
-      <select id="recurCurrency" style="padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:12px;font-family:inherit;background:var(--bg-card);color:var(--text-primary)">
-        <option value="AUD">AUD</option>
-        <option value="CHF">CHF</option>
-        <option value="EUR">EUR</option>
-        <option value="GBP">GBP</option>
-      </select>
-      <select id="recurFreq" style="padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:12px;font-family:inherit;background:var(--bg-card);color:var(--text-primary)">
-        <option value="fortnightly">Fortnightly</option>
-        <option value="weekly">Weekly</option>
-        <option value="monthly">Monthly</option>
-      </select>
-      <button class="quick-add-btn" id="recurAddBtn">+ Add</button>
-    </div>
-  </div>
-</div>
 
 </div>
 
@@ -1940,9 +1997,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     <span class="bot-tab-icon">📊</span>
     <span class="bot-tab-label">Net Worth</span>
   </button>
-  <button class="bot-tab" data-tab="subs">
-    <span class="bot-tab-icon">🔁</span>
-    <span class="bot-tab-label">Subs</span>
+  <button class="bot-tab" data-tab="spending">
+    <span class="bot-tab-icon">💳</span>
+    <span class="bot-tab-label">Spending</span>
   </button>
   <button class="bot-tab" data-tab="incoming">
     <span class="bot-tab-icon">📦</span>
@@ -1951,10 +2008,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   <button class="bot-tab" data-tab="wish">
     <span class="bot-tab-icon">🎯</span>
     <span class="bot-tab-label">Wishlist</span>
-  </button>
-  <button class="bot-tab" data-tab="recurring">
-    <span class="bot-tab-icon">💳</span>
-    <span class="bot-tab-label">Recurring</span>
   </button>
 </nav>
 
@@ -2005,7 +2058,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   }
   tabs.forEach(b => b.addEventListener('click', () => setActiveTab(b.dataset.tab)));
   const savedTab = storeGet(TAB_KEY);
-  setActiveTab(savedTab && ['net','subs','incoming','wish','recurring'].includes(savedTab) ? savedTab : 'net');
+  setActiveTab(savedTab && ['net','spending','incoming','wish'].includes(savedTab) ? savedTab : 'net');
 
   // ============================================================
   // NET WORTH (copied from the main dashboard, verbatim logic)
@@ -2034,9 +2087,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
           GBP: data.rates.GBP || 1
         };
         renderAllNetWorth();
-        if (typeof renderSubs      === 'function') renderSubs();
-        if (typeof renderIncome    === 'function') renderIncome();
-        if (typeof renderRecurring === 'function') renderRecurring();
+        if (typeof renderSubs           === 'function') renderSubs();
+        if (typeof renderIncome         === 'function') renderIncome();
+        if (typeof renderRecurring      === 'function') renderRecurring();
+        if (typeof renderOtherPurchases === 'function') renderOtherPurchases();
       }
     } catch (e) {}
   }
@@ -2642,8 +2696,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     subsTotal.innerHTML = fmtMoney(monthly) + ' <span style="font-size:13px;color:var(--text-tertiary);font-weight:500">/ mo</span>';
     subsYearly.textContent = '~' + fmtMoney(monthly * 12) + ' per year';
     subsCount.textContent = items.length + (items.length === 1 ? ' subscription' : ' subscriptions');
-    // Re-render the donut so the subs slice updates with the latest annualized total
-    if (typeof renderAllNetWorth === 'function') renderAllNetWorth();
+    // Re-render the NW donut and spending header
+    if (typeof renderAllNetWorth    === 'function') renderAllNetWorth();
+    if (typeof renderSpendingHeader === 'function') renderSpendingHeader();
   }
 
   // ============================================================
@@ -3641,6 +3696,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
       const el = document.getElementById('recurLog_' + idx);
       if (el) el.style.display = 'none';
     });
+    if (typeof renderSpendingHeader === 'function') renderSpendingHeader();
   }
 
   window.__toggleRecurLog = function (idx) {
@@ -3692,6 +3748,133 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
   renderRecurring();
 
+  // ============================================================
+  // SPENDING HEADER — combined donut + totals for the Spending tab.
+  // ============================================================
+  function renderSpendingHeader() {
+    const totalEl     = document.getElementById('spendingTotal');
+    const breakdownEl = document.getElementById('spendingBreakdown');
+    const donutSvg    = document.getElementById('spendingDonutSvg');
+    const legendEl    = document.getElementById('spendingLegend');
+    const otherTotEl  = document.getElementById('otherPurchasesTotal');
+    if (!totalEl) return;
+
+    const subsMonthly   = (storeGet('subs')      || []).reduce((s, it) => s + monthlyEquivalent(it), 0);
+    const recurMonthly  = (storeGet('recurring') || []).reduce((s, it) => s + recurMonthlyEquiv(it), 0);
+
+    const now = new Date();
+    const monthKey = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+    const otherMonthly = (storeGet('other_purchases') || [])
+      .filter(p => p.date && p.date.startsWith(monthKey))
+      .reduce((s, p) => s + (Number(p.amount) || 0), 0);
+
+    const grand = subsMonthly + recurMonthly + otherMonthly;
+    totalEl.innerHTML = fmtMoney(grand) + ' <span style="font-size:13px;color:var(--text-tertiary);font-weight:500">/ mo</span>';
+    if (otherTotEl) otherTotEl.innerHTML = fmtMoney(otherMonthly) + ' <span style="font-size:13px;color:var(--text-tertiary);font-weight:500">total</span>';
+
+    const parts = [];
+    if (subsMonthly)  parts.push('Subs ' + fmtMoney(subsMonthly));
+    if (recurMonthly) parts.push('Recurring ' + fmtMoney(recurMonthly));
+    if (otherMonthly) parts.push('Other ' + fmtMoney(otherMonthly));
+    if (breakdownEl)  breakdownEl.textContent = parts.join(' · ');
+
+    if (!donutSvg) return;
+    donutSvg.querySelectorAll('.spending-arc').forEach(e => e.remove());
+    if (grand <= 0) return;
+
+    const slices = [
+      { value: subsMonthly,  color: '#A78BFA', name: 'Subs' },
+      { value: recurMonthly, color: '#FBBF24', name: 'Recurring' },
+      { value: otherMonthly, color: '#FF8A8A', name: 'Other' },
+    ].filter(s => s.value > 0);
+
+    let angle = -Math.PI / 2;
+    const gap = slices.length > 1 ? 0.04 : 0;
+    slices.forEach(sl => {
+      const sweep = (sl.value / grand) * (Math.PI * 2) - gap;
+      if (sweep <= 0) return;
+      const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      p.setAttribute('class', 'spending-arc');
+      p.setAttribute('d', donutArcPath(70, 70, 62, 46, angle + gap / 2, angle + gap / 2 + sweep));
+      p.setAttribute('fill', sl.color);
+      donutSvg.appendChild(p);
+      angle += sweep + gap;
+    });
+
+    if (legendEl) {
+      legendEl.innerHTML = slices.map(sl => {
+        const pct = Math.round(sl.value / grand * 100);
+        return '<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-secondary)">' +
+          '<span style="width:8px;height:8px;border-radius:50%;background:' + sl.color + ';flex-shrink:0"></span>' +
+          sl.name + ' ' + pct + '%' +
+        '</div>';
+      }).join('');
+    }
+  }
+
+  // ============================================================
+  // OTHER PURCHASES — one-off purchases with date + payment mode.
+  // ============================================================
+  function renderOtherPurchases() {
+    const listEl  = document.getElementById('otherPurchasesList');
+    const emptyEl = document.getElementById('otherPurchasesEmpty');
+    if (!listEl) return;
+    const raw = storeGet('other_purchases') || [];
+    // Newest first
+    const sorted = raw.map((it, i) => Object.assign({}, it, { _idx: i }))
+                      .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    if (!sorted.length) {
+      listEl.innerHTML = '';
+      if (emptyEl) emptyEl.style.display = 'flex';
+      renderSpendingHeader();
+      return;
+    }
+    if (emptyEl) emptyEl.style.display = 'none';
+    const modeLabel = { cash: '💵 Cash', nab: '🏦 NAB', ing: '🟠 ING', anz: '🔵 ANZ' };
+    listEl.innerHTML = sorted.map(it => {
+      const dateLabel = it.date ? new Date(it.date + 'T00:00').toLocaleDateString('en-AU', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+      const mode = modeLabel[it.paymentMode] || (it.paymentMode || '').toUpperCase() || '💳';
+      return '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
+        '<div style="flex:1;min-width:0">' +
+          '<div style="font-weight:600;font-size:13px;color:var(--text-primary)">' + escapeHtml(it.name) + '</div>' +
+          '<div style="font-size:11px;color:var(--text-tertiary);margin-top:2px">' + dateLabel + ' · ' + mode + (it.note ? ' · ' + escapeHtml(it.note) : '') + '</div>' +
+        '</div>' +
+        '<div style="font-weight:700;font-size:14px;color:var(--text-primary)">' + fmtMoney(it.amount) + '</div>' +
+        '<button onclick="window.__deleteOtherPurchase(' + it._idx + ')" style="background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:16px;padding:4px 6px;border-radius:6px" title="Remove">✕</button>' +
+      '</div>';
+    }).join('');
+    renderSpendingHeader();
+  }
+
+  window.__deleteOtherPurchase = function (idx) {
+    const items = storeGet('other_purchases') || [];
+    items.splice(idx, 1);
+    storeSet('other_purchases', items);
+    renderOtherPurchases();
+  };
+
+  document.getElementById('otherAddBtn') && document.getElementById('otherAddBtn').addEventListener('click', function () {
+    const name = (document.getElementById('otherName').value || '').trim();
+    const amtRaw = parseFloat(document.getElementById('otherAmount').value);
+    const ccy    = document.getElementById('otherCurrency').value;
+    const mode   = document.getElementById('otherPaymentMode').value;
+    const date   = document.getElementById('otherDate').value;
+    const note   = (document.getElementById('otherNote').value || '').trim();
+    if (!name || isNaN(amtRaw) || !date) return;
+    const rate = exchangeRates[ccy] || 1;
+    const items = storeGet('other_purchases') || [];
+    items.push({ id: 'o' + Date.now(), name, amount: amtRaw / rate, entered_amount: amtRaw, entered_currency: ccy, paymentMode: mode, date, note });
+    storeSet('other_purchases', items);
+    document.getElementById('otherName').value   = '';
+    document.getElementById('otherAmount').value = '';
+    document.getElementById('otherNote').value   = '';
+    document.getElementById('otherDate').value   = '';
+    renderOtherPurchases();
+  });
+
+  renderOtherPurchases();
+  renderSpendingHeader();
+
   function safeRenderTicker() {
     try { renderTicker(); } catch (e) { console.error('ticker render failed', e); }
   }
@@ -3705,7 +3888,7 @@ document.addEventListener('DOMContentLoaded', function () {
   if (typeof initCloudSync !== 'function') return;
   initCloudSync({
     appKey: 'finance',
-    syncedKeys: ['subs', 'wishlist', 'incoming_orders', 'nw_currency', 'nw:activity', 'nw:history', 'nw_income', 'recurring'],
+    syncedKeys: ['subs', 'wishlist', 'incoming_orders', 'nw_currency', 'nw:activity', 'nw:history', 'nw_income', 'recurring', 'other_purchases'],
     syncedPrefixes: ['nw:'],
     onApplied: function () { window.dispatchEvent(new Event('storage')); }
   });
