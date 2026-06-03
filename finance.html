@@ -1724,6 +1724,16 @@ input[type="date"]::-webkit-calendar-picker-indicator {
           <button class="quick-add-btn" id="otherAddBtn">+</button>
         </div>
       </div>
+      <!-- Cash -->
+      <div class="card nw-subcard">
+        <div class="label" style="display:flex;justify-content:space-between;align-items:center"><span>💵 Cash</span><span id="cashTotal" style="font-size:13px;color:var(--text-primary);font-weight:600">0</span></div>
+        <div id="cashList" class="nw-list"></div>
+        <div class="quick-add">
+          <input type="text" placeholder="Label (e.g. Wallet)" id="cashName" />
+          <input type="number" placeholder="Amount" id="cashAmount" step="0.01" />
+          <button class="quick-add-btn" id="cashAddBtn">+</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1767,19 +1777,24 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     <span class="section-title-text">SPENDING</span>
   </div>
 
-  <!-- Spending overview: combined burn + donut chart -->
+  <!-- Spending overview: this month actuals (left) + allocation donut (right) -->
   <div class="card" style="background:linear-gradient(135deg,rgba(167,139,250,0.06),rgba(251,191,36,0.04));border:1px solid rgba(167,139,250,0.18)">
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
-      <div>
-        <div style="font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.04em;font-weight:500">Total monthly spend</div>
-        <div id="spendingTotal" style="font-size:34px;font-weight:700;color:var(--text-primary);line-height:1.05;margin-top:2px">—</div>
-        <div id="spendingBreakdown" style="font-size:11px;color:var(--text-tertiary);margin-top:4px"></div>
+    <div style="display:flex;gap:0;flex-wrap:wrap;align-items:stretch">
+      <!-- Left: This Month actual spending -->
+      <div style="flex:1;min-width:160px;padding-right:20px;border-right:1px solid rgba(255,255,255,0.07);margin-right:20px">
+        <div style="font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.04em;font-weight:500;margin-bottom:6px">This Month</div>
+        <div id="spendingThisMonthTotal" style="font-size:30px;font-weight:700;color:var(--text-primary);line-height:1;margin-bottom:14px">—</div>
+        <div id="spendingThisMonthLines" style="display:flex;flex-direction:column;gap:7px"></div>
       </div>
-      <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
-        <svg id="spendingDonutSvg" viewBox="0 0 140 140" width="120" height="120" style="overflow:visible" aria-hidden="true">
+      <!-- Right: Donut on top, monthly estimate below -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;min-width:140px">
+        <svg id="spendingDonutSvg" viewBox="0 0 140 140" width="130" height="130" style="overflow:visible" aria-hidden="true">
           <circle cx="70" cy="70" r="58" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="16"/>
         </svg>
-        <div id="spendingLegend" style="display:flex;flex-wrap:wrap;gap:6px 12px;justify-content:center"></div>
+        <div id="spendingLegend" style="display:flex;flex-wrap:wrap;gap:5px 12px;justify-content:center"></div>
+        <div style="font-size:10px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-top:6px">Monthly Estimate</div>
+        <div id="spendingTotal" style="font-size:20px;font-weight:700;color:var(--text-primary);line-height:1.1">—</div>
+        <div id="spendingBreakdown" style="font-size:10px;color:var(--text-tertiary);text-align:center;max-width:170px;line-height:1.5"></div>
       </div>
     </div>
   </div>
@@ -1874,23 +1889,23 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     <div id="otherPurchasesList"></div>
     <div class="empty-state" id="otherPurchasesEmpty">No purchases logged yet</div>
     <div class="quick-add" style="flex-wrap:wrap;gap:6px;margin-top:10px">
-      <input type="text" placeholder="Item / description" id="otherName" style="flex:1.5;min-width:140px" />
-      <input type="number" placeholder="Amount" id="otherAmount" step="0.01" style="flex:1;max-width:110px" />
-      <select id="otherCurrency" style="padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:12px;font-family:inherit;background:var(--bg-card);color:var(--text-primary)">
+      <input type="text" placeholder="Item / description" id="purchaseName" style="flex:1.5;min-width:140px" />
+      <input type="number" placeholder="Amount" id="purchaseAmount" step="0.01" style="flex:1;max-width:110px" />
+      <select id="purchaseCurrency" style="padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:12px;font-family:inherit;background:var(--bg-card);color:var(--text-primary)">
         <option value="AUD">AUD</option>
         <option value="CHF">CHF</option>
         <option value="EUR">EUR</option>
         <option value="GBP">GBP</option>
       </select>
-      <select id="otherPaymentMode" style="padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:12px;font-family:inherit;background:var(--bg-card);color:var(--text-primary)">
+      <select id="purchasePayMode" style="padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:12px;font-family:inherit;background:var(--bg-card);color:var(--text-primary)">
         <option value="cash">💵 Cash</option>
         <option value="nab">🏦 NAB</option>
         <option value="ing">🟠 ING</option>
         <option value="anz">🔵 ANZ</option>
       </select>
-      <label class="date-field" title="Purchase date" style="min-width:150px"><span class="date-emoji" aria-hidden="true">📅</span><input type="date" id="otherDate" /></label>
-      <input type="text" placeholder="Note (optional)" id="otherNote" style="flex:1.2;min-width:100px;padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:12px;font-family:inherit;background:var(--bg-card);color:var(--text-primary)" />
-      <button class="quick-add-btn" id="otherAddBtn">+ Add</button>
+      <label class="date-field" title="Purchase date" style="min-width:150px"><span class="date-emoji" aria-hidden="true">📅</span><input type="date" id="purchaseDate" /></label>
+      <input type="text" placeholder="Note (optional)" id="purchaseNote" style="flex:1.2;min-width:100px;padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:12px;font-family:inherit;background:var(--bg-card);color:var(--text-primary)" />
+      <button class="quick-add-btn" id="purchaseAddBtn">+ Add</button>
     </div>
   </div>
 </div>
@@ -2068,7 +2083,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     { key: 'bank',   listId: 'bankList',   totalId: 'bankTotal',   nameId: 'bankName',   amtId: 'bankAmount',   addId: 'bankAddBtn' },
     { key: 'stocks', listId: 'stocksList', totalId: 'stocksTotal', nameId: 'stocksName', amtId: 'stocksAmount', addId: 'stocksAddBtn' },
     { key: 'crypto', listId: 'cryptoList', totalId: 'cryptoTotal', nameId: 'cryptoName', amtId: 'cryptoAmount', addId: 'cryptoAddBtn' },
-    { key: 'other',  listId: 'otherList',  totalId: 'otherTotal',  nameId: 'otherName',  amtId: 'otherAmount',  addId: 'otherAddBtn' }
+    { key: 'other',  listId: 'otherList',  totalId: 'otherTotal',  nameId: 'otherName',  amtId: 'otherAmount',  addId: 'otherAddBtn' },
+    { key: 'cash',   listId: 'cashList',   totalId: 'cashTotal',   nameId: 'cashName',   amtId: 'cashAmount',   addId: 'cashAddBtn' }
   ];
   const currencyEl = document.getElementById('netWorthCurrency');
   const netWorthTotal = document.getElementById('netWorthTotal');
@@ -2294,6 +2310,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     stocks: { name: 'Stocks',   color: '#6EE7B7' },
     crypto: { name: 'Crypto',   color: '#FBBF24' },
     other:  { name: 'Other',    color: '#B794F4' },
+    cash:   { name: 'Cash',     color: '#4ADE80' },
     subs:   { name: 'Subs/yr',  color: '#FF8A8A' }
   };
   function donutArcPath(cx, cy, rOuter, rInner, startAngle, endAngle) {
@@ -3752,25 +3769,53 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   // SPENDING HEADER — combined donut + totals for the Spending tab.
   // ============================================================
   function renderSpendingHeader() {
-    const totalEl     = document.getElementById('spendingTotal');
-    const breakdownEl = document.getElementById('spendingBreakdown');
-    const donutSvg    = document.getElementById('spendingDonutSvg');
-    const legendEl    = document.getElementById('spendingLegend');
-    const otherTotEl  = document.getElementById('otherPurchasesTotal');
+    const totalEl          = document.getElementById('spendingTotal');
+    const breakdownEl      = document.getElementById('spendingBreakdown');
+    const donutSvg         = document.getElementById('spendingDonutSvg');
+    const legendEl         = document.getElementById('spendingLegend');
+    const otherTotEl       = document.getElementById('otherPurchasesTotal');
+    const thisMonthTotEl   = document.getElementById('spendingThisMonthTotal');
+    const thisMonthLinesEl = document.getElementById('spendingThisMonthLines');
     if (!totalEl) return;
 
-    const subsMonthly   = (storeGet('subs')      || []).reduce((s, it) => s + monthlyEquivalent(it), 0);
-    const recurMonthly  = (storeGet('recurring') || []).reduce((s, it) => s + recurMonthlyEquiv(it), 0);
+    const subsMonthly  = (storeGet('subs')      || []).reduce((s, it) => s + monthlyEquivalent(it), 0);
+    const recurMonthly = (storeGet('recurring') || []).reduce((s, it) => s + recurMonthlyEquiv(it), 0);
 
     const now = new Date();
     const monthKey = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+
+    // Actual logged recurring this month
+    const recurThisMonth = (storeGet('recurring') || []).reduce((s, it) =>
+      s + (it.logs || []).filter(l => l.date && l.date.startsWith(monthKey))
+        .reduce((ls, l) => ls + (Number(l.amount) || 0), 0), 0);
+
+    // Other purchases this month
     const otherMonthly = (storeGet('other_purchases') || [])
       .filter(p => p.date && p.date.startsWith(monthKey))
       .reduce((s, p) => s + (Number(p.amount) || 0), 0);
 
+    const thisMonthTotal = subsMonthly + recurThisMonth + otherMonthly;
     const grand = subsMonthly + recurMonthly + otherMonthly;
+
     totalEl.innerHTML = fmtMoney(grand) + ' <span style="font-size:13px;color:var(--text-tertiary);font-weight:500">/ mo</span>';
     if (otherTotEl) otherTotEl.innerHTML = fmtMoney(otherMonthly) + ' <span style="font-size:13px;color:var(--text-tertiary);font-weight:500">total</span>';
+
+    // This Month panel
+    if (thisMonthTotEl) thisMonthTotEl.textContent = fmtMoney(thisMonthTotal);
+    if (thisMonthLinesEl) {
+      const lines = [
+        { label: 'Subscriptions', value: subsMonthly,    color: '#A78BFA', note: ' est.' },
+        { label: 'Recurring',     value: recurThisMonth, color: '#FBBF24' },
+        { label: 'Other',         value: otherMonthly,   color: '#FF8A8A' },
+      ].filter(l => l.value > 0);
+      thisMonthLinesEl.innerHTML = lines.length ? lines.map(l =>
+        '<div style="display:flex;align-items:center;gap:8px">' +
+          '<span style="width:8px;height:8px;border-radius:50%;background:' + l.color + ';flex-shrink:0"></span>' +
+          '<span style="font-size:12px;color:var(--text-secondary);flex:1">' + l.label + '</span>' +
+          '<span style="font-size:12px;font-weight:600;color:var(--text-primary)">' + fmtMoney(l.value) + (l.note || '') + '</span>' +
+        '</div>'
+      ).join('') : '<div style="font-size:12px;color:var(--text-tertiary)">Nothing logged yet this month</div>';
+    }
 
     const parts = [];
     if (subsMonthly)  parts.push('Subs ' + fmtMoney(subsMonthly));
@@ -3853,22 +3898,22 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     renderOtherPurchases();
   };
 
-  document.getElementById('otherAddBtn') && document.getElementById('otherAddBtn').addEventListener('click', function () {
-    const name = (document.getElementById('otherName').value || '').trim();
-    const amtRaw = parseFloat(document.getElementById('otherAmount').value);
-    const ccy    = document.getElementById('otherCurrency').value;
-    const mode   = document.getElementById('otherPaymentMode').value;
-    const date   = document.getElementById('otherDate').value;
-    const note   = (document.getElementById('otherNote').value || '').trim();
+  document.getElementById('purchaseAddBtn') && document.getElementById('purchaseAddBtn').addEventListener('click', function () {
+    const name   = (document.getElementById('purchaseName').value || '').trim();
+    const amtRaw = parseFloat(document.getElementById('purchaseAmount').value);
+    const ccy    = document.getElementById('purchaseCurrency').value;
+    const mode   = document.getElementById('purchasePayMode').value;
+    const date   = document.getElementById('purchaseDate').value;
+    const note   = (document.getElementById('purchaseNote').value || '').trim();
     if (!name || isNaN(amtRaw) || !date) return;
     const rate = exchangeRates[ccy] || 1;
     const items = storeGet('other_purchases') || [];
     items.push({ id: 'o' + Date.now(), name, amount: amtRaw / rate, entered_amount: amtRaw, entered_currency: ccy, paymentMode: mode, date, note });
     storeSet('other_purchases', items);
-    document.getElementById('otherName').value   = '';
-    document.getElementById('otherAmount').value = '';
-    document.getElementById('otherNote').value   = '';
-    document.getElementById('otherDate').value   = '';
+    document.getElementById('purchaseName').value   = '';
+    document.getElementById('purchaseAmount').value = '';
+    document.getElementById('purchaseNote').value   = '';
+    document.getElementById('purchaseDate').value   = '';
     renderOtherPurchases();
   });
 
