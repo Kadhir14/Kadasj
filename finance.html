@@ -1870,9 +1870,12 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         <option value="weekly">Weekly</option>
         <option value="monthly">Monthly</option>
       </select>
-      <select id="recurFromAcct" title="Auto-deduct from this account when logging a payment" style="padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:12px;font-family:inherit;background:var(--bg-card);color:var(--text-primary);min-width:130px">
-        <option value="">No deduction</option>
-      </select>
+      <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);font-family:inherit;white-space:nowrap">
+        Auto-deduct
+        <select id="recurFromAcct" style="padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:12px;font-family:inherit;background:var(--bg-card);color:var(--text-primary);min-width:120px">
+          <option value="">Off</option>
+        </select>
+      </label>
       <button class="quick-add-btn" id="recurAddBtn">+ Add</button>
     </div>
   </div>
@@ -1908,9 +1911,12 @@ input[type="date"]::-webkit-calendar-picker-indicator {
       </select>
       <label class="date-field" title="Purchase date" style="min-width:150px"><span class="date-emoji" aria-hidden="true">📅</span><input type="date" id="purchaseDate" /></label>
       <input type="text" placeholder="Note (optional)" id="purchaseNote" style="flex:1.2;min-width:100px;padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:12px;font-family:inherit;background:var(--bg-card);color:var(--text-primary)" />
-      <select id="purchaseFromAcct" title="Deduct from this net worth account" style="padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:12px;font-family:inherit;background:var(--bg-card);color:var(--text-primary);min-width:130px">
-        <option value="">No deduction</option>
-      </select>
+      <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);font-family:inherit;white-space:nowrap">
+        Deduct from
+        <select id="purchaseFromAcct" style="padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:12px;font-family:inherit;background:var(--bg-card);color:var(--text-primary);min-width:120px">
+          <option value="">Off</option>
+        </select>
+      </label>
       <button class="quick-add-btn" id="purchaseAddBtn">+ Add</button>
     </div>
   </div>
@@ -3112,19 +3118,20 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     });
     return out;
   }
-  // Shared icon map (includes cash added later)
-  const NW_ICONS = { bank: '🏦', stocks: '📈', crypto: '🪙', other: '💼', cash: '💵' };
-
   // Populate any account-select element with live NW accounts.
+  // NW_ICONS is defined locally (not as a const at IIFE scope) to avoid a
+  // temporal dead-zone ReferenceError when renderAllNetWorth() calls this
+  // function before the IIFE has finished initialising.
   function populateAccountSelect(selectId) {
     const sel = document.getElementById(selectId);
     if (!sel) return;
     const prev = sel.value;
     const accounts = listAllNwAccounts();
-    const opts = ['<option value="">No deduction</option>'];
+    const ICONS = { bank: '🏦', stocks: '📈', crypto: '🪙', other: '💼', cash: '💵' };
+    const opts = ['<option value="">Off (no deduction)</option>'];
     accounts.forEach(a => {
       const val = a.catKey + '::' + a.itemName;
-      opts.push('<option value="' + val + '">' + (NW_ICONS[a.catKey] || '') + ' ' + escapeHtml(a.itemName) + '</option>');
+      opts.push('<option value="' + val + '">' + (ICONS[a.catKey] || '') + ' ' + escapeHtml(a.itemName) + '</option>');
     });
     sel.innerHTML = opts.join('');
     if (prev && [...sel.options].some(o => o.value === prev)) sel.value = prev;
@@ -3950,6 +3957,14 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     renderOtherPurchases();
   };
 
+  // Default the purchase date to today so the form works without explicitly picking a date.
+  (function () {
+    const el = document.getElementById('purchaseDate');
+    if (!el) return;
+    const d = new Date();
+    el.value = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  })();
+
   document.getElementById('purchaseAddBtn') && document.getElementById('purchaseAddBtn').addEventListener('click', function () {
     const name   = (document.getElementById('purchaseName').value || '').trim();
     const amtRaw = parseFloat(document.getElementById('purchaseAmount').value);
@@ -3971,7 +3986,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     document.getElementById('purchaseName').value   = '';
     document.getElementById('purchaseAmount').value = '';
     document.getElementById('purchaseNote').value   = '';
-    document.getElementById('purchaseDate').value   = '';
+    const _pd = document.getElementById('purchaseDate');
+    if (_pd) { const _n = new Date(); _pd.value = _n.getFullYear() + '-' + String(_n.getMonth()+1).padStart(2,'0') + '-' + String(_n.getDate()).padStart(2,'0'); }
     renderOtherPurchases();
   });
 
