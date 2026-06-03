@@ -1870,6 +1870,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         <option value="weekly">Weekly</option>
         <option value="monthly">Monthly</option>
       </select>
+      <select id="recurFromAcct" title="Auto-deduct from this account when logging a payment" style="padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:12px;font-family:inherit;background:var(--bg-card);color:var(--text-primary);min-width:130px">
+        <option value="">No deduction</option>
+      </select>
       <button class="quick-add-btn" id="recurAddBtn">+ Add</button>
     </div>
   </div>
@@ -1905,6 +1908,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
       </select>
       <label class="date-field" title="Purchase date" style="min-width:150px"><span class="date-emoji" aria-hidden="true">📅</span><input type="date" id="purchaseDate" /></label>
       <input type="text" placeholder="Note (optional)" id="purchaseNote" style="flex:1.2;min-width:100px;padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:12px;font-family:inherit;background:var(--bg-card);color:var(--text-primary)" />
+      <select id="purchaseFromAcct" title="Deduct from this net worth account" style="padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:12px;font-family:inherit;background:var(--bg-card);color:var(--text-primary);min-width:130px">
+        <option value="">No deduction</option>
+      </select>
       <button class="quick-add-btn" id="purchaseAddBtn">+ Add</button>
     </div>
   </div>
@@ -2237,9 +2243,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     renderNetWorthChart();
     renderAllocationDonut(sliceTotals, grand);
     renderActivity();
-    if (typeof renderWishlist === 'function') renderWishlist();
-    if (typeof renderOrders   === 'function') renderOrders();
-    if (typeof updateOrdPreview === 'function') updateOrdPreview();
+    if (typeof renderWishlist        === 'function') renderWishlist();
+    if (typeof renderOrders          === 'function') renderOrders();
+    if (typeof updateOrdPreview      === 'function') updateOrdPreview();
+    if (typeof populateRecurFromSelect === 'function') populateRecurFromSelect();
+    if (typeof populateOtherFromSelect === 'function') populateOtherFromSelect();
   }
 
   // ============================================================
@@ -3104,6 +3112,38 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     });
     return out;
   }
+  // Shared icon map (includes cash added later)
+  const NW_ICONS = { bank: '🏦', stocks: '📈', crypto: '🪙', other: '💼', cash: '💵' };
+
+  // Populate any account-select element with live NW accounts.
+  function populateAccountSelect(selectId) {
+    const sel = document.getElementById(selectId);
+    if (!sel) return;
+    const prev = sel.value;
+    const accounts = listAllNwAccounts();
+    const opts = ['<option value="">No deduction</option>'];
+    accounts.forEach(a => {
+      const val = a.catKey + '::' + a.itemName;
+      opts.push('<option value="' + val + '">' + (NW_ICONS[a.catKey] || '') + ' ' + escapeHtml(a.itemName) + '</option>');
+    });
+    sel.innerHTML = opts.join('');
+    if (prev && [...sel.options].some(o => o.value === prev)) sel.value = prev;
+  }
+  function populateRecurFromSelect()  { populateAccountSelect('recurFromAcct'); }
+  function populateOtherFromSelect()  { populateAccountSelect('purchaseFromAcct'); }
+
+  // Deduct amountCHF from a NW account, log the activity, refresh NW display.
+  function deductFromNw(catKey, itemName, amountCHF) {
+    if (!catKey || !itemName || !(Number(amountCHF) > 0)) return;
+    const nwItems = storeGet('nw:' + catKey) || [];
+    const idx = nwItems.findIndex(x => String(x.name) === String(itemName));
+    if (idx < 0) return;
+    nwItems[idx].amount = (Number(nwItems[idx].amount) || 0) - Number(amountCHF);
+    storeSet('nw:' + catKey, nwItems);
+    logActivity(catKey, nwItems[idx].name, -Number(amountCHF), 'edit');
+    renderAllNetWorth();
+  }
+
   // Refill the order add-form's "From" select with the user's actual NW
   // accounts, preserving the current selection if that account still exists.
   function populateOrdFromSelect() {
@@ -3669,6 +3709,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     const emptyEl = document.getElementById('recurringEmpty');
     const totalEl = document.getElementById('recurringTotal');
     if (!listEl) return;
+    populateRecurFromSelect();
     const items = storeGet('recurring') || [];
     if (!items.length) {
       listEl.innerHTML = '';
@@ -3686,18 +3727,21 @@ input[type="date"]::-webkit-calendar-picker-indicator {
       const enteredCcy = it.entered_currency || 'AUD';
       const logs = (it.logs || []).slice(-3).reverse();
       const logRows = logs.map(l =>
-        '<div style="font-size:11px;color:var(--text-tertiary);padding:2px 0">📌 ' + l.date + ': ' + (l.entered_currency || enteredCcy) + ' ' + Number(l.entered_amount || l.amount).toFixed(2) + (l.note ? ' · ' + escapeHtml(l.note) : '') + '</div>'
+        '<div style="font-size:11px;color:var(--text-tertiary);padding:2px 0">📌 ' + l.date + ': ' + (l.entered_currency || enteredCcy) + ' ' + Number(l.entered_amount || l.amount).toFixed(2) + (l.note ? ' · ' + escapeHtml(l.note) : '') + (l.deducted ? ' <span style="color:#6ee7b7">✓ deducted</span>' : '') + '</div>'
       ).join('');
+      const acctHint = it.fromAccount ? ' · deducts → ' + escapeHtml(it.fromAccount) : '';
+      const deductNote = it.fromAccount ? '<div style="font-size:11px;color:var(--text-tertiary);padding:4px 0 2px">Will deduct from <strong style="color:var(--text-secondary)">' + escapeHtml(it.fromAccount) + '</strong></div>' : '';
       return '<div style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
         '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">' +
           '<div style="flex:1;min-width:0">' +
             '<div style="font-weight:600;font-size:13px;color:var(--text-primary)">' + escapeHtml(it.name) + '</div>' +
-            '<div style="font-size:11px;color:var(--text-tertiary);margin-top:2px">' + freqLabel + ' · ~' + enteredCcy + ' ' + Number(enteredAmt).toFixed(2) + ' typical</div>' +
+            '<div style="font-size:11px;color:var(--text-tertiary);margin-top:2px">' + freqLabel + ' · ~' + enteredCcy + ' ' + Number(enteredAmt).toFixed(2) + ' typical' + acctHint + '</div>' +
           '</div>' +
           '<button onclick="window.__toggleRecurLog(' + idx + ')" style="padding:6px 12px;background:rgba(125,211,252,0.12);border:1px solid rgba(125,211,252,0.22);border-radius:8px;color:#7DD3FC;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Log payment</button>' +
           '<button onclick="window.__deleteRecurring(' + idx + ')" style="background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:16px;padding:4px 6px;border-radius:6px" title="Remove">✕</button>' +
         '</div>' +
         '<div id="recurLog_' + idx + '" style="margin-top:8px">' +
+          deductNote +
           '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">' +
             '<input type="number" step="0.01" placeholder="Actual amount" id="recurLogAmt_' + idx + '" style="width:120px;padding:6px 10px;border:0.5px solid rgba(255,255,255,0.12);border-radius:8px;font-size:12px;background:var(--bg-card);color:var(--text-primary);font-family:inherit" />' +
             '<input type="text" placeholder="Note (optional)" id="recurLogNote_' + idx + '" style="flex:1;min-width:80px;padding:6px 10px;border:0.5px solid rgba(255,255,255,0.12);border-radius:8px;font-size:12px;background:var(--bg-card);color:var(--text-primary);font-family:inherit" />' +
@@ -3731,14 +3775,17 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     const noteEl = document.getElementById('recurLogNote_' + idx);
     const amt  = parseFloat(amtEl  ? amtEl.value  : '0');
     if (isNaN(amt) || amt <= 0) return;
-    const note = noteEl ? noteEl.value.trim() : '';
-    const ccy  = items[idx].entered_currency || 'AUD';
-    const rate = exchangeRates[ccy] || 1;
+    const note   = noteEl ? noteEl.value.trim() : '';
+    const ccy    = items[idx].entered_currency || 'AUD';
+    const rate   = exchangeRates[ccy] || 1;
+    const amtCHF = amt / rate;
+    const deducted = !!(items[idx].fromCat && items[idx].fromAccount);
     items[idx].logs = items[idx].logs || [];
     const d = new Date();
     const dateStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-    items[idx].logs.push({ date: dateStr, amount: amt / rate, entered_amount: amt, entered_currency: ccy, note });
+    items[idx].logs.push({ date: dateStr, amount: amtCHF, entered_amount: amt, entered_currency: ccy, note, deducted });
     storeSet('recurring', items);
+    if (deducted) deductFromNw(items[idx].fromCat, items[idx].fromAccount, amtCHF);
     renderRecurring();
   };
   window.__deleteRecurring = function (idx) {
@@ -3754,9 +3801,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     const ccy    = document.getElementById('recurCurrency').value;
     const freq   = document.getElementById('recurFreq').value;
     if (!name || isNaN(amtRaw)) return;
-    const rate = exchangeRates[ccy] || 1;
+    const rate    = exchangeRates[ccy] || 1;
+    const fromVal = (document.getElementById('recurFromAcct') || {}).value || '';
+    const fromSep = fromVal.indexOf('::');
+    const fromCat = fromSep > 0 ? fromVal.slice(0, fromSep) : null;
+    const fromAccount = fromSep > 0 ? fromVal.slice(fromSep + 2) : null;
     const items = storeGet('recurring') || [];
-    items.push({ id: 'r' + Date.now(), name, amount: amtRaw / rate, entered_amount: amtRaw, entered_currency: ccy, frequency: freq, logs: [] });
+    items.push({ id: 'r' + Date.now(), name, amount: amtRaw / rate, entered_amount: amtRaw, entered_currency: ccy, frequency: freq, fromCat, fromAccount, logs: [] });
     storeSet('recurring', items);
     document.getElementById('recurName').value   = '';
     document.getElementById('recurAmount').value = '';
@@ -3864,6 +3915,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     const listEl  = document.getElementById('otherPurchasesList');
     const emptyEl = document.getElementById('otherPurchasesEmpty');
     if (!listEl) return;
+    populateOtherFromSelect();
     const raw = storeGet('other_purchases') || [];
     // Newest first
     const sorted = raw.map((it, i) => Object.assign({}, it, { _idx: i }))
@@ -3882,7 +3934,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
       return '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
         '<div style="flex:1;min-width:0">' +
           '<div style="font-weight:600;font-size:13px;color:var(--text-primary)">' + escapeHtml(it.name) + '</div>' +
-          '<div style="font-size:11px;color:var(--text-tertiary);margin-top:2px">' + dateLabel + ' · ' + mode + (it.note ? ' · ' + escapeHtml(it.note) : '') + '</div>' +
+          '<div style="font-size:11px;color:var(--text-tertiary);margin-top:2px">' + dateLabel + ' · ' + mode + (it.note ? ' · ' + escapeHtml(it.note) : '') + (it.fromAccount ? ' <span style="color:#6ee7b7">✓ deducted from ' + escapeHtml(it.fromAccount) + '</span>' : '') + '</div>' +
         '</div>' +
         '<div style="font-weight:700;font-size:14px;color:var(--text-primary)">' + fmtMoney(it.amount) + '</div>' +
         '<button onclick="window.__deleteOtherPurchase(' + it._idx + ')" style="background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:16px;padding:4px 6px;border-radius:6px" title="Remove">✕</button>' +
@@ -3906,10 +3958,16 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     const date   = document.getElementById('purchaseDate').value;
     const note   = (document.getElementById('purchaseNote').value || '').trim();
     if (!name || isNaN(amtRaw) || !date) return;
-    const rate = exchangeRates[ccy] || 1;
+    const rate    = exchangeRates[ccy] || 1;
+    const amtCHF  = amtRaw / rate;
+    const fromVal = (document.getElementById('purchaseFromAcct') || {}).value || '';
+    const fromSep = fromVal.indexOf('::');
+    const fromCat = fromSep > 0 ? fromVal.slice(0, fromSep) : null;
+    const fromAccount = fromSep > 0 ? fromVal.slice(fromSep + 2) : null;
     const items = storeGet('other_purchases') || [];
-    items.push({ id: 'o' + Date.now(), name, amount: amtRaw / rate, entered_amount: amtRaw, entered_currency: ccy, paymentMode: mode, date, note });
+    items.push({ id: 'o' + Date.now(), name, amount: amtCHF, entered_amount: amtRaw, entered_currency: ccy, paymentMode: mode, date, note, fromCat, fromAccount });
     storeSet('other_purchases', items);
+    if (fromCat && fromAccount) deductFromNw(fromCat, fromAccount, amtCHF);
     document.getElementById('purchaseName').value   = '';
     document.getElementById('purchaseAmount').value = '';
     document.getElementById('purchaseNote').value   = '';
